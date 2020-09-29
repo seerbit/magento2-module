@@ -3,7 +3,7 @@
     "description": "Official Magento2 package for SeerBit payment gateway.",
     "keywords": ["seerbit","payment","payment gateway","mobile money","creditcard","debitcard","online banking","global payment gateway","magento", "magento 2"],
     "version": "1.0.0",
-    "homepage": "www.seerbit.com",
+    "homepage": "https://www.seerbit.com",
     "type": "magento2-module",
     "license": [
         "OSL-3.0",
