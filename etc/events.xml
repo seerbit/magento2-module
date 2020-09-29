@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="sales_order_place_before">
+      <observer name="SeerbitPayment_ObserverBeforeSalesOrderPlace" instance="Seerbit\Payment\Observer\ObserverBeforeSalesOrderPlace"/>
+   </event>
+    <event name="checkout_onepage_controller_success_action">
+        <observer name="SeerbitPayment_ObserverAfterPaymentVerify" instance="Seerbit\Payment\Observer\ObserverAfterPaymentVerify" />
+    </event>
+</config>
