@@ -1,50 +1,55 @@
+# Contributing
 
-# How To Contribute
+Contributions are **welcome** and will be fully **credited**.
 
-Community made patches,  bug reports and contributions are always welcome for Paystack plugins and libraries. 
+Please read and understand the contribution guide before creating an issue or pull request.
 
-When contributing please ensure you follow the guidelines below to help us keep on top of things.
+## Etiquette
 
-__Please Note:__
+This project is open source, and as such, the maintainers give their free time to build and maintain the source code
+held within. They make the code freely available in the hope that it will be of use to other developers. It would be
+extremely unfair for them to suffer abuse or anger for their hard work.
 
-GitHub is for _bug reports and contributions only_ - if you have a support question or a request for a customization this is not the right place to post it.  Please reach out by 
+Please be considerate towards maintainers when raising issues or presenting pull requests. Let's show the
+world that developers are civilized and selfless people.
 
-- sending a message from [our website](https://paystack.com/contact).
-- posting a question on the plugin support forum.
+It's the duty of the maintainer to ensure that all submissions to the project are of sufficient
+quality to benefit the project. Many developers have different skillsets, strengths, and weaknesses. Respect the maintainer's decision, and do not be upset or abusive if your submission is not used.
 
-## Contributing to Plugin
+## Viability
 
-### Reporting Issues
+When requesting or submitting new features, first consider whether it might be useful to others. Open
+source projects are used by many developers, who may have entirely different needs to your own. Think about
+whether or not your feature is likely to be used by other users of the project.
 
-Reporting issues is a great way to became a contributor as it doesn't require technical skills. In fact you don't even need to know a programming language or to be able to check the code itself, you just need to make sure that everything works as expected and [submit an issue report](https://github.com/PaystackHQ/plugin-magento-2/issues/new) if you spot a bug. Sound like something you're up for? Go for it!
+## Procedure
 
-#### How To Submit An Issue Report
+Before filing an issue:
 
-If something isn't working, congratulations you've found a bug! Help us fix it by submitting an issue report:
+- Attempt to replicate the problem, to ensure that it wasn't a coincidental incident.
+- Check to make sure your feature suggestion isn't already present within the project.
+- Check the pull requests tab to ensure that the bug doesn't have a fix in progress.
+- Check the pull requests tab to ensure that the feature isn't already in progress.
 
-* Make sure you have a [GitHub account](https://github.com/signup/free)
-* Search the [Existing Issues](https://github.com/PaystackHQ/plugin-magento-2/issues) to be sure that the one you've noticed isn't already there
-* Submit a report for your issue
-  * Clearly describe the issue (including steps to reproduce it if it's a bug)
-  * Make sure you fill in the earliest version that you know has the issue.
+Before submitting a pull request:
 
-### Making Changes
+- Check the codebase to ensure that your feature doesn't already exist.
+- Check the pull requests to ensure that another person hasn't already submitted the feature or fix.
 
-If you believe you have an improvement to the plugin, please feel free to send a pull request so we can review and merge.
+## Requirements
 
-#### How To Submit A PR
+If the project maintainer has any additional requirements, you will find them listed here.
 
-* Fork the repository on GitHub
-* Clone the repository into your local system and create a branch that describes what you are working on by prefixing with `feature/`, `fix/`, `chore/`and so on followed by the title of the fix or feature.
-* Make commits that are descriptive and breaks down the process.
-* Please **don't** modify the changelog - this will be maintained by Paystack developers.
-* Push your fix to the remote version of your branch and create a PR that aims to merge that branch into `master`.
+- **[PSR-2 Coding Standard](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md)** - The easiest way to apply the conventions is to install [PHP Code Sniffer](https://pear.php.net/package/PHP_CodeSniffer).
 
-After you follow the step above, the next stage will be waiting on us to merge your Pull Request. We review them all, and make suggestions and changes as and if necessary.
+- **Add tests!** - Your patch won't be accepted if it doesn't have tests.
 
-# Additional Resources
+- **Document any change in behaviour** - Make sure the `README.md` and any other relevant documentation are kept up-to-date.
 
-* [General GitHub documentation](https://help.github.com/)
-* [GitHub pull request documentation](https://help.github.com/articles/about-pull-requests/)
-* [Paystack Documentation](https://developers.paystack.co/v2.0/docs/)
-* [Paystack Helpdesk](https://paystack.com/help)
+- **Consider our release cycle** - We try to follow [SemVer v2.0.0](https://semver.org/). Randomly breaking public APIs is not an option.
+
+- **One pull request per feature** - If you want to do more than one thing, send multiple pull requests.
+
+- **Send coherent history** - Make sure each individual commit in your pull request is meaningful. If you had to make multiple intermediate commits while developing, please [squash them](https://www.git-scm.com/book/en/v2/Git-Tools-Rewriting-History#Changing-Multiple-Commit-Messages) before submitting.
+
+**Happy coding**!
