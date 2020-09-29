@@ -9,8 +9,6 @@
 
 # Seerbit Payment module for Magento 2
 
-Paystack payment gateway Magento2 extension
-
 # Requirements
 This module was built and tested using Magento 2(2.3.5) and framework 102.0.5 
 PHP 7.2.20 or higher
