@@ -1,91 +1,53 @@
 <?php
+
 namespace Seerbit\Payment\Helper;
 
-use Magento\Sales\Api\OrderManagementInterface;
+use Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Framework\App\Helper\Context;
+use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 
-class Data extends \Magento\Payment\Helper\Data
+class Data extends AbstractHelper
 {
+    private CheckoutSession $checkoutSession;
+    private OrderSender $orderSender;
 
-    /**
-     * @var \Magento\Checkout\Model\Session
-     */
-    protected $session;
-
-    /**
-     *
-     * @var type
-     */
-    protected $_checkoutSession;
-
-    /**
-     *
-     * @var \Magento\Store\Model\StoreManagerInterface
-     */
-    protected $_storeManager;
-
-    /**
-     * Utils constructor.
-     * @param \Magento\Checkout\Model\Session $session
-     * @param OrderManagementInterface $orderManagement
-     * @param \Magento\Payment\Model\Config $paymentConfig
-     * @param \Magento\Framework\App\Config\Initial $initialConfig
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
-     */
     public function __construct(
-        \Magento\Framework\App\Helper\Context $context,
-        \Magento\Framework\View\LayoutFactory $layoutFactory,
-        \Magento\Payment\Model\Method\Factory $paymentMethodFactory,
-        \Magento\Store\Model\App\Emulation $appEmulation,
-        \Magento\Payment\Model\Config $paymentConfig,
-        \Magento\Framework\App\Config\Initial $initialConfig,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Checkout\Model\Session $session
+        Context $context,
+        CheckoutSession $checkoutSession,
+        OrderSender $orderSender
     ) {
-        parent::__construct($context, $layoutFactory, $paymentMethodFactory, $appEmulation, $paymentConfig, $initialConfig);
-        $this->_storeManager = $storeManager;
-        $this->session = $session;
+        parent::__construct($context);
+        $this->checkoutSession = $checkoutSession;
+        $this->orderSender = $orderSender;
     }
 
-    /**
-     * Get customer/shopper's name
-     * @param $order
-     * @return string
-     */
-    public function getOrderCustomerName($order)
+    public function getOrderCustomerName(Order $order): string
     {
-        $customerName = '';
         if ($order->getCustomerId() === null) {
-            $customerName = $order->getBillingAddress()->getFirstname() . ' ' . $order->getBillingAddress()->getLastname();
-        } else {
-            $customerName =  $order->getCustomerName();
+            $billingAddress = $order->getBillingAddress();
+            if ($billingAddress) {
+                return trim($billingAddress->getFirstname() . ' ' . $billingAddress->getLastname());
+            }
+            return '';
         }
-        return trim($customerName);
+        return trim((string) $order->getCustomerName());
     }
 
-    /**
-     * Restores quote
-     *
-     * @return bool
-     */
-    public function restoreQuote()
+    public function restoreQuote(): bool
     {
-        return $this->session->restoreQuote();
+        return $this->checkoutSession->restoreQuote();
     }
 
-    /**
-     * @param $order
-     * @return bool
-     */
-    public function processOrder($order)
+    public function processOrder(Order $order): bool
     {
-        if ($order->getState() != $order::STATE_PROCESSING) {
-            $order->setStatus($order::STATE_PROCESSING);
-            $order->setState($order::STATE_PROCESSING);
-            //$order->setExtOrderId($orderNumber);
+        if ($order->getState() !== Order::STATE_PROCESSING) {
+            $order->setState(Order::STATE_PROCESSING)
+                ->setStatus(Order::STATE_PROCESSING)
+                ->addStatusToHistory(Order::STATE_PROCESSING, __('SeerBit :: Order has been paid.'), true);
             $order->save();
-            $customerNotified = $this->sendOrderEmail($order);
-            $order->addStatusToHistory($order::STATE_PROCESSING, 'SeerBit :: Order has been paid.', $customerNotified);
-            $order->save();
+            $this->orderSender->send($order, true);
             return true;
         }
         return false;

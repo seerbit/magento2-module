@@ -1,37 +1,15 @@
 {
     "name": "seerbit/magento2-module",
     "description": "Official Magento2 package for SeerBit payment gateway.",
-    "keywords": ["seerbit","payment","payment gateway","mobile money","creditcard","debitcard","online banking","global payment gateway","magento", "magento 2"],
-    "version": "1.1.0",
+    "keywords": ["seerbit","payment","payment gateway","mobile money","creditcard","debitcard","online banking","global payment gateway","magento","magento 2"],
+    "version": "2.0.0",
     "homepage": "https://www.seerbit.com",
     "type": "magento2-module",
-    "license": [
-        "OSL-3.0",
-        "AFL-3.0"
-    ],
-    "repositories": [
-        {
-            "type": "composer",
-            "url": "https://repo.magento.com/"
-        }
-    ],
-    "authors": [
-        {
-            "email": "victor.ighalo@centricgateway.com",
-            "name": "Victor Ighalo",
-            "role": "Developer"
-        }
-    ],
-    "support": {
-        "email": "developers@seerbit.com"
-    },
+    "license": ["MIT"],
+    "repositories": [{"type": "composer","url": "https://repo.magento.com/"}],
+    "authors": [{"email": "developers@seerbit.com","name": "SeerBit Developer","role": "Developer"}],
+    "support": {"email": "support@seerbit.com"},
+    "require": {"php": ">=8.1","magento/framework": ">=103.0.0","magento/module-payment": ">=100.4.0","magento/module-sales": ">=103.0.0","magento/module-checkout": ">=100.4.0"},
     "minimum-stability": "stable",
-    "autoload": {
-        "files": [
-            "registration.php"
-        ],
-        "psr-4": {
-            "Seerbit\\Payment\\": ""
-        }
-    }
+    "autoload": {"files": ["registration.php"],"psr-4": {"Seerbit\\Payment\\": ""}}
 }

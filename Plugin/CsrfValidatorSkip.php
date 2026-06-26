@@ -1,49 +1,22 @@
 <?php
 
-/**
- * Paystack Magento2 Module using \Magento\Payment\Model\Method\AbstractMethod
- * Copyright (C) 2019 Paystack.com
- *
- * This file is part of Pstk/Paystack.
- *
- * Pstk/Paystack is free software => you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http =>//www.gnu.org/licenses/>.
- */
+namespace Seerbit\Payment\Plugin;
 
-namespace Pstk\Paystack\Plugin;
+use Magento\Framework\App\Request\CsrfValidator;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\App\ActionInterface;
 
-/**
- * Description of CsrfValidatorSkip
- *
- * @author Olayode Ezekiel <kielsoft@gmail.com>
- */
-class CsrfValidatorSkip {
-    /**
-     * @param \Magento\Framework\App\Request\CsrfValidator $subject
-     * @param \Closure $proceed
-     * @param \Magento\Framework\App\RequestInterface $request
-     * @param \Magento\Framework\App\ActionInterface $action
-     */
+class CsrfValidatorSkip
+{
     public function aroundValidate(
-        $subject,
+        CsrfValidator $subject,
         \Closure $proceed,
-        $request,
-        $action
+        RequestInterface $request,
+        ActionInterface $action
     ) {
-        if ("{$request->getModuleName()}/{$request->getActionName()}" == 'seerbit/webhook') {
-            return; // Skip CSRF check
+        if ($request->getModuleName() === 'seerbit_payment') {
+            return;
         }
-        $proceed($request, $action); // Proceed Magento 2 core functionalities
+        $proceed($request, $action);
     }
-
 }

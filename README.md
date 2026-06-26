@@ -7,39 +7,63 @@
    SeerBit
 </h1>
 
-# Seerbit Payment module for Magento 2
+# SeerBit Payment Module for Magento 2
 
-# Requirements
-This module was built and tested using Magento 2(2.3.5) and framework 102.0.5 
-PHP 7.2.20 or higher
+Accept credit/debit cards, bank transfers, mobile money, and other payment methods on your Magento 2 store with SeerBit.
+
+## Requirements
+
+- **Magento** 2.4.6 or higher
+- **PHP** 8.1 or higher
 
 ## Installation
 
-Via [composer](https://getcomposer.org). Follow the composer
-[installation instructions](https://getcomposer.org/doc/00-intro.md) if you do not already have
-composer installed.
-
-
-Once composer is installed, execute the following commands in your project root to install this library:
+Via [Composer](https://getcomposer.org):
 
 ```bash
 composer require seerbit/magento2-module
 ```
 
-* Wait while dependencies are updated.
-
-* Enter following commands to enable module:
+Then enable the module:
 
 ```bash
 php bin/magento module:enable Seerbit_Payment --clear-static-content
 php bin/magento setup:upgrade
 php bin/magento setup:di:compile
+php bin/magento cache:flush
 ```
 
-## Usage
-* If you don't have one, register a merchant account on [SeerBit Merchant Dashboard](https://dashboard.seerbitapi.com/#/auth/register) 
-* Enable and configure `SeerBit` in *Magento Admin* under `Stores/Configuration/Payment` Methods
-* You can find both public and secret keys from your merchant dashboard -> Account menu -> Settings -> API Keys. 
+## Configuration
 
-## API Documentation ##
-* https://doc.seerbit.com/
+1. Log in to your **Magento Admin Panel**
+2. Navigate to **Stores > Configuration > Sales > Payment Methods**
+3. Expand **SeerBit Payment Gateway**
+4. Set **Enabled** to *Yes*
+5. Enter your **Test/Live Public Key** and **Secret Key**
+6. Set **Test Mode** to *Yes* for sandbox testing, *No* for live transactions
+7. Click **Save Config**
+
+You can find your API keys in the [SeerBit Merchant Dashboard](https://www.dashboard.seerbitapi.com) under **Settings > API Keys**.
+
+## Features
+
+- Supports cards, bank transfers, mobile money, and USSD payments
+- Test and live mode support
+- CSP (Content Security Policy) compliant
+- Server-side payment verification via SeerBit API v3
+- Automatic order status updates on successful payment
+- Cart restoration on failed/cancelled payments
+
+## Supported Magento Versions
+
+- Magento 2.4.6
+- Magento 2.4.7 (including patch releases)
+
+## API Documentation
+
+- [SeerBit API Reference](https://seerbit.github.io/openapi/)
+- [SeerBit Developer Docs](https://doc.seerbit.com/)
+
+## License
+
+[MIT](LICENSE)
