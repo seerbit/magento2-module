@@ -1,30 +1,30 @@
 <?php
+
 namespace Seerbit\Payment\Block;
 
+use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Asset\Repository as AssetRepository;
 
-class SeerBitAssets extends \Magento\Framework\View\Element\Template
+class SeerBitAssets extends Template
 {
-    protected $assetRepository;
+    private AssetRepository $assetRepo;
 
     public function __construct(
-        \Magento\Backend\Block\Template\Context $context,
-        AssetRepository $assetRepository
+        Template\Context $context,
+        AssetRepository $assetRepo,
+        array $data = []
     ) {
-        $this->assetRepository = $assetRepository;
-        parent::__construct($context);
+        parent::__construct($context, $data);
+        $this->assetRepo = $assetRepo;
     }
 
-    public function getAssets()
+    public function getAssets(): array
     {
-        $output['seerbit_logo'] = $this->getViewFileUrl('Seerbit_Payment::images/seerbit-logo.svg');
-
-        return $output;
-    }
-
-    public function getViewFileUrl($fileId, array $params = [])
-    {
-        $params = array_merge(['_secure' => $this->getRequest()->isSecure()], $params);
-        return $this->assetRepository->getUrlWithParams($fileId, $params);
+        return [
+            'seerbit_logo' => $this->assetRepo->getUrlWithParams(
+                'Seerbit_Payment::images/seerbit-logo.svg',
+                ['area' => 'frontend']
+            )
+        ];
     }
 }

@@ -1,14 +1,12 @@
 <?xml version="1.0" ?>
 <page layout="1column" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <script src="https://checkout.seerbitapi.com/api/v2/seerbit.js" src_type="url"/>
+    </head>
     <body>
         <referenceContainer name="after.body.start">
-            <block class="Seerbit\Payment\Block\SeerBitAssets" name="seerbit_assets.fpx" template="Seerbit_Payment::payment_image.phtml"/>
+            <block class="Seerbit\Payment\Block\SeerBitAssets" name="seerbit_assets" template="Seerbit_Payment::payment_image.phtml"/>
         </referenceContainer>
-        <referenceBlock name="require.js">
-            <action method="setTemplate">
-                <argument name="template" xsi:type="string">Seerbit_Payment::page/js/require_js.phtml</argument>
-            </action>
-        </referenceBlock>
         <referenceBlock name="checkout.root">
             <arguments>
                 <argument name="jsLayout" xsi:type="array">

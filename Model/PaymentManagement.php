@@ -1,140 +1,157 @@
 <?php
+
 namespace Seerbit\Payment\Model;
 
 use Magento\Payment\Helper\Data as PaymentHelper;
 use Seerbit\Payment\Model\Payment\Standard as SeerBitStandardModel;
+use Psr\Log\LoggerInterface;
 
 class PaymentManagement implements \Seerbit\Payment\Api\PaymentManagementInterface
 {
     protected $seerbitPaymentInstance;
-
     protected $orderInterface;
     protected $checkoutSession;
-
-    /**
-     * @var \Magento\Framework\Event\Manager
-     */
     private $eventManager;
-    private $secretKey;
-    private $publicKey;
-    private $curl;
+    private string $secretKey;
+    private string $publicKey;
     private $seerBitHelper;
+    private LoggerInterface $logger;
 
     public function __construct(
         PaymentHelper $paymentHelper,
         \Magento\Framework\Event\Manager $eventManager,
         \Magento\Sales\Api\Data\OrderInterface $orderInterface,
         \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Framework\HTTP\Client\Curl $curl,
-        \Seerbit\Payment\Helper\Data $seerBitHelper
+        \Seerbit\Payment\Helper\Data $seerBitHelper,
+        LoggerInterface $logger
     ) {
         $this->eventManager = $eventManager;
-        $this->curl = $curl;
         $this->seerBitHelper = $seerBitHelper;
+        $this->logger = $logger;
         $this->seerbitPaymentInstance = $paymentHelper->getMethodInstance(SeerBitStandardModel::CODE);
-
         $this->orderInterface = $orderInterface;
         $this->checkoutSession = $checkoutSession;
-
-        $this->secretKey = $this->seerbitPaymentInstance->getConfigData('live_secret_key');
-        $this->publicKey = $this->seerbitPaymentInstance->getConfigData('live_public_key');
+        $this->secretKey = (string) $this->seerbitPaymentInstance->getConfigData('live_secret_key');
+        $this->publicKey = (string) $this->seerbitPaymentInstance->getConfigData('live_public_key');
         if ($this->seerbitPaymentInstance->getConfigData('test_mode')) {
-            $this->secretKey = $this->seerbitPaymentInstance->getConfigData('test_secret_key');
-            $this->publicKey = $this->seerbitPaymentInstance->getConfigData('test_public_key');
+            $this->secretKey = (string) $this->seerbitPaymentInstance->getConfigData('test_secret_key');
+            $this->publicKey = (string) $this->seerbitPaymentInstance->getConfigData('test_public_key');
         }
     }
 
-    /**
-     * @param string $reference
-     * @return array
-     */
     public function verifyPayment($reference)
     {
         try {
-            $getToken = $this->getMerchantToken();
-            if ($getToken['status'] === 'success') {
-                return ['data' => $this->verifyTransaction($reference, $getToken['token'])];
+            $token = $this->getMerchantToken();
+            if ($token) {
+                return ['data' => $this->verifyTransaction($reference, $token)];
             }
             $this->seerBitHelper->restoreQuote();
-            return ['data' => ['status' => 'server_error', 'message' => 'Error reaching SeerBit server. Please try again'] ];
+            return ['data' => ['status' => 'server_error', 'message' => 'Error reaching SeerBit server. Please try again']];
         } catch (\Exception $exception) {
+            $this->logger->error('SeerBit payment verification failed', [
+                'reference' => $reference,
+                'error' => $exception->getMessage()
+            ]);
             $this->seerBitHelper->restoreQuote();
-            return ['data' => ['status' => 'server_error', 'message' => 'Error reaching SeerBit server. Please try again'] ];
+            return ['data' => ['status' => 'server_error', 'message' => 'Error reaching SeerBit server. Please try again']];
         }
     }
 
-    private function getMerchantToken()
+    private function getMerchantToken(): ?string
     {
-        //SETUP CURL
-        $this->curl->addHeader("Content-Type", "application/json");
+        $ch = curl_init(SeerBitStandardModel::TOKEN_URL);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+            CURLOPT_POSTFIELDS => json_encode([
+                'key' => $this->secretKey . '.' . $this->publicKey
+            ])
+        ]);
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
 
-        //BUILD TOKEN REQUEST PAYLOAD
-        $params = json_encode(
-            ['clientSecret' => hash("sha256", $this->publicKey . "." . $this->secretKey),
-                'clientId' =>$this->publicKey]
-        );
+        $this->logger->info('SeerBit token response', ['status' => $httpCode, 'body' => $response]);
 
-        //GET MERCHANT TOKEN
-        $this->curl->post(SeerBitStandardModel::TOKEN_URL, $params);
-
-        //RESULT OF TOKEN REQUEST
-        $result_body = json_decode($this->curl->getBody());
-        $result_status = $this->curl->getStatus();
-
-        //VALIDATE RESPONSE AND GET MERCHANT TOKEN
-        if ($result_status == 200) {
-            if ($result_body->responseCode === "00") {
-                return ['token' => $result_body->access_token, 'status' => 'success'];
+        if ($httpCode == 200) {
+            $result = json_decode($response);
+            if (isset($result->status) && $result->status === 'SUCCESS') {
+                return $result->data->EncryptedSecKey->encryptedKey ?? null;
             }
-            return ['status' => 'fail', 'message' => $result_body->message];
         }
-        return [ 'status' => 'server_error', 'message' => 'Error reaching SeerBit servers'];
+        return null;
     }
 
-    private function verifyTransaction($reference, $token)
+    private function verifyTransaction(string $reference, string $token): array
     {
-        //SETUP CURL
-        $this->curl->addHeader("Content-Type", "application/json");
-        $this->curl->addHeader("Authorization", "Bearer " . $token);
+        $ch = curl_init(SeerBitStandardModel::VERIFY_TRANSACTION_URL . $reference);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . $token
+            ]
+        ]);
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
 
-        //GET MERCHANT TOKEN
-        $this->curl->get(SeerBitStandardModel::VERIFY_TRANSACTION_URL . $reference);
+        $this->logger->info('SeerBit verify response', [
+            'reference' => $reference,
+            'status' => $httpCode,
+            'body' => $response
+        ]);
 
-        //RESULT OF TOKEN REQUEST
-        $result_body = json_decode($this->curl->getBody());
-        $result_status = $this->curl->getStatus();
-        //VALIDATE RESPONSE AND GET MERCHANT TOKEN
-        if ($result_status == 200) {
-            if (!isset($result_body->code)) {
-                return ['status' => 'fail', 'message' => isset($result_body->message) ? $result_body->message : 'Error reaching SeerBit server. Please try again'];
+        $result_body = json_decode($response);
+
+        if ($httpCode == 200) {
+            if (!isset($result_body->status)) {
+                return ['status' => 'fail', 'message' => $result_body->message ?? 'Error reaching SeerBit server. Please try again'];
             }
-            if ($result_body->code === "00") {
-                return ['status' => 'success', 'message' => $result_body->message, 'data' => $result_body->transaction];
+            if ($result_body->status === 'SUCCESS') {
+                $paidAmount = (float) ($result_body->data->payments->amount ?? 0);
+                $order = $this->getOrder();
+
+                if ($order) {
+                    $orderAmount = (float) $order->getGrandTotal();
+
+                    if ($paidAmount < $orderAmount) {
+                        $this->logger->warning('SeerBit: Amount mismatch', [
+                            'reference' => $reference,
+                            'paid' => $paidAmount,
+                            'expected' => $orderAmount
+                        ]);
+                        $this->seerBitHelper->restoreQuote();
+                        return [
+                            'status' => 'fail',
+                            'message' => 'Payment amount ('. $paidAmount .') is less than order amount ('. $orderAmount .'). Please try again.'
+                        ];
+                    }
+                }
+
+                return [
+                    'status' => 'success',
+                    'message' => $result_body->data->message ?? 'Payment verified',
+                    'data' => $result_body->data->payments ?? null
+                ];
             }
         }
-        return [ 'status' => 'server_error', 'message' => isset($result_body->message) ? $result_body->message : 'Error reaching SeerBit server. Please try again'];
+        return ['status' => 'server_error', 'message' => $result_body->message ?? 'Error reaching SeerBit server. Please try again'];
     }
 
-    /**
-     * Loads the order based on the last real order
-     * @return boolean
-     */
     private function getOrder()
     {
-        // get the last real order id
         $lastOrder = $this->checkoutSession->getLastRealOrder();
         if ($lastOrder) {
             $lastOrderId = $lastOrder->getIncrementId();
         } else {
             return false;
         }
-
         if ($lastOrderId) {
-            // load and return the order instance
             return $this->orderInterface->loadByIncrementId($lastOrderId);
         }
         return false;
     }
-
-
 }

@@ -8,6 +8,9 @@
 composer.phar
 /vendor/
 
+.DS_Store
+Thumbs.db
+
 # Random files
 *~
 \#*

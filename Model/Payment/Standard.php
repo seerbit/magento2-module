@@ -1,19 +1,18 @@
 <?php
 
-namespace SeerBit\Payment\Model\Payment;
+namespace Seerbit\Payment\Model\Payment;
 
-class Standard extends \Magento\Payment\Model\Method\AbstractMethod
+use Magento\Payment\Model\Method\AbstractMethod;
+
+class Standard extends AbstractMethod
 {
-
-
     const CODE = 'seerbit_payment';
-    const TOKEN_URL = 'https://seerbitapi.com/sbt/api/v1/auth';
-    const VERIFY_TRANSACTION_URL = 'https://seerbitapi.com/sbt/api/card/v1/get/transaction/status/';
+    const API_BASE_URL = 'https://seerbitapi.com/api';
+    const TOKEN_URL = self::API_BASE_URL . '/v2/encrypt/keys';
+    const VERIFY_TRANSACTION_URL = self::API_BASE_URL . '/v3/payments/query/';
 
     protected $_code = self::CODE;
     protected $_isOffline = true;
-
-
 
     public function isAvailable(
         \Magento\Quote\Api\Data\CartInterface $quote = null

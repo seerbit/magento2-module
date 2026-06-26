@@ -37,8 +37,8 @@ class Webhook extends \Magento\Config\Block\System\Config\Form\Field
      */
     protected function _getElementHtml(AbstractElement $element)
     {
-        $webhookUrl = $this->store->getBaseUrl() . 'seetbit/payment/webhook';
-        $value = "You may login to <a target=\"_blank\" href=\"https://dashboard.seerbitapi.com/#/settings\">SeerBit Settings</a> to update your Webhook URL to:<br><br>"
+        $webhookUrl = $this->store->getBaseUrl() . 'seerbit_payment/payment/webhook';
+        $value = "You may login to <a target=\"_blank\" href=\"https://www.dashboard.seerbitapi.com/#/settings/webhooks\">SeerBit Settings</a> to update your Webhook URL to:<br><br>"
                 . "<strong style='color:red;'>$webhookUrl</strong>";
 
         $element->setValue($webhookUrl);
